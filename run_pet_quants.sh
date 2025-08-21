@@ -8,6 +8,12 @@
 module unload python/3.10
 module load python/3.9
 
+export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export VECLIB_MAXIMUM_THREADS=1
+
 export PYTHONPATH=/project/ftdc_misc/jtduda/quants/QuANTs/python/quants:/project/ftdc_volumetric/fw_bids/scripts/Flywheel_python_sdk
 petName=$1 # Absolute path of BIDS-format, attentuation-corrected dynamic PET image
 t1Name=$2 # Absolute path of N4-corrected, skull-on T1 image from ANTsCT output directory

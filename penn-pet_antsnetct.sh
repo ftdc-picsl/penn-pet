@@ -24,7 +24,7 @@ module load c3d/20191022
 
 # JSP: If we can find an alternative to copying the template and associated labels and warps from the ANTsCT container,
 # we can get rid of the singularity call.
-module load singularity/3.8.3
+#module load singularity/3.8.3
 
 # Command-line arguments.
 petName=$1 # Absolute path of BIDS-format, attentuation-corrected dynamic PET image

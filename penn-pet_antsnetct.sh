@@ -75,7 +75,7 @@ psfwhm=4.9 # FWHM of PET camera point-spread function.
 # JSP: refRegion could also be a user-supplied option. Use cb (i.e., cerebellar grey) for AV1451,
 # whole cerebellum for amyloid tracers, and optionally wm.
 refRegion="cb" # PET reference region--for now, cerebellum, can be changed to "wm".
-if [[ "${trc}" == "AV1451" ]]; then
+if [[ "${trc}" == "AV1451" ]] || [[ "${trc}" == "flortaucipir" ]]; then
     refRegion="cb"
 elif [[ "${trc}" == "FLORBETABEN" ]] || [[ "${trc}" == "FLORBETAPIR" ]]; then
     refRegion="wholecb"

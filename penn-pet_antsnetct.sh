@@ -55,13 +55,9 @@ wd=${petdir/sub-${id}\/ses-${petsess}} # Subjects directory
 scriptdir=`dirname $0` # Location of this script
 
 # JSP: note that output directory is specified here!
-outdir=${3:-"/project/ftdc_pipeline/data/pet/sub-${id}/ses-${petsess}"}
+outdir=${3:-"/project/wolk_4/SCAN/bids/derivatives/pennpet/sub-${id}/ses-${petsess}"}
 echo "Output directory: ${outdir}"
 if [[ ! -d ${outdir} ]]; then mkdir -p ${outdir}; fi
-
-# QuANTs variables
-NetworkDir=/project/ftdc_misc/jtduda/quants/QuANTs
-adir="/project/ftdc_misc/jtduda/quants/atlases/"
 
 # Some processing defaults
 # JSP: I don't think we'll want to alter any of these defaults, but we could allow the user to set all of these options.
@@ -75,9 +71,9 @@ psfwhm=4.9 # FWHM of PET camera point-spread function.
 # JSP: refRegion could also be a user-supplied option. Use cb (i.e., cerebellar grey) for AV1451,
 # whole cerebellum for amyloid tracers, and optionally wm.
 refRegion="cb" # PET reference region--for now, cerebellum, can be changed to "wm".
-if [[ "${trc}" == "AV1451" ]] || [[ "${trc}" == "flortaucipir" ]]; then
+if [[ "${trc}" == "AV1451" ]] || [[ "${trc}" == "flortaucipir" ]] || [[ "${trc}" == "mk6240" ]] || [[ "${trc}" == "pi2620" ]]; then
     refRegion="cb"
-elif [[ "${trc}" == "FLORBETABEN" ]] || [[ "${trc}" == "FLORBETAPIR" ]]; then
+elif [[ "${trc}" == "FLORBETABEN" ]] || [[ "${trc}" == "FLORBETAPIR" ]] || [[ "${trc}" == "florbetaben" ]] || [[ "${trc}" == "florbetapir" ]] || [[ "${trc}" == "pib" ]] || [[ "${trc}" == "nav4694" ]]; then
     refRegion="wholecb"
 fi
 
@@ -90,13 +86,14 @@ pvcMethod=("RVC" "IY") # PVC methods.
 # Define session-specific filename variables.
 pfx="${outdir}/sub-${id}_ses-${petsess}_trc-${trc}"
 t1dir=`dirname ${t1Name}`
+echo "T1 directory is: ${t1dir}"
 bmaskName=`ls ${t1dir}/sub-${id}_ses-${mrisess}_*desc-brain_mask.nii.gz`
 segName=`ls ${t1dir}/sub-${id}_ses-${mrisess}_*seg-antsnetct_dseg.nii.gz`
 
  # Check that ANTsCT output directory has subject-template transforms (affine & warp) and posteriors.
 # If not, quit and tell us about it.
 flist=(`ls ${t1dir}/*seg-antsnetct_label-*_probseg.nii.gz ${t1dir}/*xfm.h5`)
-if [[ ${#flist[@]} -lt 10 ]]; then
+if [[ ${#flist[@]} -lt 7 ]]; then
     echo "Missing transform and/or posteriors files from T1 directory."
     exit 1
 fi
@@ -149,22 +146,22 @@ if [[ ${makeSUVR} -eq 1 ]]; then
     # Create an inferior cerebellar reference by lopping off the dorsal cerebellum in the template BrainCOLOR labels,
     # transforming to the T1 space, then multiplying it by the same labels in the T1-space BrainCOLOR label image.
     
-        3dcalc -a ${templateDir}/tpl-ADNINormalAgingANTs_res-01_atlas-BrainColor_desc-subcortical_dseg.nii.gz -expr 'step(equals(a,38)+equals(a,39))*step(k-105)' -overwrite -prefix ${outdir}/template_reference.nii.gz
+        3dcalc -a ${templateDir}/tpl-ADNINormalAgingANTs_res-01_atlas-BrainColor_desc-subcortical_dseg.nii.gz -expr 'step(equals(a,38)+equals(a,39))*step(105-k)' -overwrite -prefix ${outdir}/template_reference.nii.gz
         
         antsApplyTransforms -d 3 -e 0 -i ${outdir}/template_reference.nii.gz -r ${t1Name} -o ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -n NearestNeighbor -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-ADNINormalAgingANTs_to-T1w_mode-image_xfm.h5`
 
-        3dcalc -a ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -b ${segName} -c `ls ${t1dir}/sub-${id}_ses-${mrisess}_*seg-antsnetct_label-CBM_probseg.nii.gz` -expr 'step(step(a)*equals(b,6)*step(c-0.67))' -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz
+        3dcalc -a ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -b ${segName} -c `ls ${t1dir}/sub-${id}_ses-${mrisess}_*seg-antsnetct_label-CBM_probseg.nii.gz` -expr 'step(step(a)*equals(b,11)*step(c-0.67))' -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz
 
     elif [[ "${refRegion}" == "wholecb" ]]; then
     
-    3dcalc -a ${segName} -expr 'equals(a, 6)' -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite
+    3dcalc -a ${segName} -expr 'equals(a, 11)' -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite
     
     3dmask_tool -input ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -dilate_result -1
 
     
     elif [[ "${refRegion}" == "wm" ]]; then
 
-        3dcalc -a ${segName} -expr 'equals(a,3)' -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite
+        3dcalc -a ${segName} -expr 'equals(a,2)' -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite
 
         3dmask_tool -input ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -dilate_result -1
 

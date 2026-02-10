@@ -5,9 +5,6 @@
 # characters like underscores or periods.
 # Command-line arguments.
 
-module unload python/3.10
-module load python/3.9
-
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1

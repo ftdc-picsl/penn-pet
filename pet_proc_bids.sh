@@ -4,6 +4,10 @@
 # Note that subject and session labels cannot contain BIDS-incompatible 
 # characters like underscores or periods.
 
+export APPTAINERENV_PYTHONUNBUFFERED=1
+export APPTAINERENV_ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=$numSlots
+export APPTAINERENV_TMPDIR="/tmp"
+#export APPTAINERENV_TEMPLATEFLOW_HOME=${templateflow_home}
 export SINGULARITYENV_ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export MKL_NUM_THREADS=1
@@ -12,19 +16,17 @@ export NUMEXPR_NUM_THREADS=1
 export PYTHONPATH=/project/ftdc_misc/jtduda/quants/QuANTs/python/quants:/project/ftdc_volumetric/fw_bids/scripts/Flywheel_python_sdk
 
 # Load required software on PMACS LPC.
-module unload python/3.10
-module load python/3.9
 module load ANTs/2.3.5
 module load afni_openmp/20.1
 module load PETPVC/1.2.10
 module load fsl/6.0.3
-module unload python/3.10
-module load python/3.9
 module load c3d/20191022
+module unload python/3.12
+module load python/3.12
 
 # JSP: If we can find an alternative to copying the template and associated labels and warps from the ANTsCT container,
-# we can get rid of the singularity call.
-module load singularity/3.8.3
+# we can get rid of the apptainer call.
+module load apptainer/1.4.1 
 
 # Command-line arguments.
 petName=$1 # Absolute path of BIDS-format, attentuation-corrected dynamic PET image
@@ -87,7 +89,7 @@ pvcMethod=("RVC" "IY") # PVC methods.
 # Here we are getting the ADNI template from the ANTsCT gear to ensure that it's the same reference used in the
 # ANTsCT stream.
 antsct=/project/ftdc_pipeline/ftdc-picsl/antsct-aging-0.3.3-p01/antsct-aging-0.3.3-p01.sif
-singularity exec -B ${outdir}:/data ${antsct} cp -r /opt/template /data/ # copy template dir to PET output dir
+apptainer exec -B ${outdir}:/data ${antsct} cp -r /opt/template /data/ # copy template dir to PET output dir
 tempName=${outdir}/template/T_template0_BrainCerebellum.nii.gz
 
 # Define session-specific filename variables.

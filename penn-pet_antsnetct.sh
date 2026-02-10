@@ -12,14 +12,12 @@ export NUMEXPR_NUM_THREADS=1
 export PYTHONPATH=/project/ftdc_misc/jtduda/quants/QuANTs/python/quants:/project/ftdc_volumetric/fw_bids/scripts/Flywheel_python_sdk
 
 # Load required software on PMACS LPC.
-module unload python/3.10
-module load python/3.9
+module unload python/3.12
+module load python/3.12
 module load ANTs/2.3.5
 module load afni_openmp/20.1
 module load PETPVC/1.2.10
 module load fsl/6.0.3
-module unload python/3.10
-module load python/3.9
 module load c3d/20191022
 
 # JSP: If we can find an alternative to copying the template and associated labels and warps from the ANTsCT container,
@@ -190,8 +188,6 @@ antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-suvr${mrisess}_pet.nii.gz" -r ${te
 antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-IY${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-IYTemplate_pet.nii.gz" -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5`
 
 antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-RVCTemplate_pet.nii.gz" -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5`
-
-# JSP: add warping of SFS-RR-corrected image to template space.
 
 # Get label statistics for multiple atlases using QuANTs.
 #for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do

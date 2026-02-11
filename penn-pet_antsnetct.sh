@@ -84,12 +84,19 @@ pvcMethod=("RVC" "IY") # PVC methods.
 pfx="${outdir}/sub-${id}_ses-${petsess}_trc-${trc}"
 t1dir=`dirname ${t1Name}`
 echo "T1 directory is: ${t1dir}"
-bmaskName=`ls ${t1dir}/sub-${id}_ses-${mrisess}_*desc-brain_mask.nii.gz`
-segName=`ls ${t1dir}/sub-${id}_ses-${mrisess}_*seg-antsnetct_dseg.nii.gz`
+# Since antsnetct output directories can have outputs for multiple T1 images,
+# we have to make sure we derive the bmaskName and segName from t1Name,
+# rather than just ls-ing using wildcards. Use the first 3 entities of the
+# T1 base filename: subj, sess, and acq.
+t1bn=`basename ${t1Name}`
+t1fp=(${t1bn//_/\ })
+t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}_${t1fp[2]}"
+bmaskName="${t1root}_desc-brain_mask.nii.gz"
+segName="${t1root}_seg-antsnetct_dseg.nii.gz"
 
  # Check that ANTsCT output directory has subject-template transforms (affine & warp) and posteriors.
 # If not, quit and tell us about it.
-flist=(`ls ${t1dir}/*seg-antsnetct_label-*_probseg.nii.gz ${t1dir}/*xfm.h5`)
+flist=(`ls ${t1root}_seg-antsnetct_label-*_probseg.nii.gz ${t1root}_from*xfm.h5`)
 if [[ ${#flist[@]} -lt 7 ]]; then
     echo "Missing transform and/or posteriors files from T1 directory."
     exit 1
@@ -145,32 +152,31 @@ if [[ ${makeSUVR} -eq 1 ]]; then
     
         3dcalc -a ${templateDir}/tpl-ADNINormalAgingANTs_res-01_atlas-BrainColor_desc-subcortical_dseg.nii.gz -expr 'step(equals(a,38)+equals(a,39))*step(105-k)' -overwrite -prefix ${outdir}/template_reference.nii.gz
         
-        antsApplyTransforms -d 3 -e 0 -i ${outdir}/template_reference.nii.gz -r ${t1Name} -o ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -n NearestNeighbor -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-ADNINormalAgingANTs_to-T1w_mode-image_xfm.h5`
+        antsApplyTransforms -d 3 -e 0 -i ${outdir}/template_reference.nii.gz -r ${t1Name} -o "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -n NearestNeighbor -t "${t1root}_from-ADNINormalAgingANTs_to-T1w_mode-image_xfm.h5"
 
-        3dcalc -a ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -b ${segName} -c `ls ${t1dir}/sub-${id}_ses-${mrisess}_*seg-antsnetct_label-CBM_probseg.nii.gz` -expr 'step(step(a)*equals(b,11)*step(c-0.67))' -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz
+        3dcalc -a ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -b ${segName} -c "${t1root}_seg-antsnetct_label-CBM_probseg.nii.gz" -expr 'step(step(a)*equals(b,11)*step(c-0.67))' -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz
 
     elif [[ "${refRegion}" == "wholecb" ]]; then
     
-    3dcalc -a ${segName} -expr 'equals(a, 11)' -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite
+    3dcalc -a ${segName} -expr 'equals(a, 11)' -prefix "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -overwrite
     
-    3dmask_tool -input ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -dilate_result -1
-
+    3dmask_tool -input "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -overwrite -prefix "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -dilate_result -1
     
     elif [[ "${refRegion}" == "wm" ]]; then
 
-        3dcalc -a ${segName} -expr 'equals(a,2)' -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite
+        3dcalc -a ${segName} -expr 'equals(a,2)' -prefix "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -overwrite
 
-        3dmask_tool -input ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -overwrite -prefix ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz -dilate_result -1
+        3dmask_tool -input "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -overwrite -prefix "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" -dilate_result -1
 
     fi
 
-    refval=`3dmaskave -quiet -mask ${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz ${pfx}_desc-rigid${mrisess}_pet.nii.gz`        
+    refval=`3dmaskave -quiet -mask "${outdir}/sub-${id}_ses-${mrisess}_reference.nii.gz" "${pfx}_desc-rigid${mrisess}_pet.nii.gz"`        
     3dcalc -a "${pfx}_desc-rigid${mrisess}_pet.nii.gz" -expr 'a/'${refval} -overwrite -prefix "${pfx}_desc-suvr${mrisess}_pet.nii.gz"
 
 fi
 
 # Partial-volume correction using iterative Yang.
-tmpflist=(`ls ${t1dir}/*seg-antsnetct_label-*_probseg.nii.gz | grep -v CSF`)
+tmpflist=(`ls "${t1root}_seg-antsnetct_label-*_probseg.nii.gz" | grep -v CSF`)
 fslmerge -t "${outdir}/sub-${id}_ses-${mrisess}_IY_mask.nii.gz" ${tmpflist[@]}
 pvc_iy "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${outdir}/sub-${id}_ses-${mrisess}_IY_mask.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" -x ${psfwhm} -y ${psfwhm} -z ${psfwhm}
 3dcalc -a "${bmaskName}" -b "${pfx}_desc-IY${mrisess}_pet.nii.gz" -expr 'a*b' -overwrite -prefix "${pfx}_desc-IY${mrisess}_pet.nii.gz"
@@ -182,11 +188,11 @@ pvc_vc "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.ni
 # JSP: insert code for SFS-RR partial-volume correction about here.
 
 # Warp SUVR maps to template space.
-antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-suvr${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-suvrTemplate_pet.nii.gz" -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5`
+antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-suvr${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-suvrTemplate_pet.nii.gz" -t "${t1root}_from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5"
 
-antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-IY${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-IYTemplate_pet.nii.gz" -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5`
+antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-IY${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-IYTemplate_pet.nii.gz" -t "${t1root}_from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5"
 
-antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-RVCTemplate_pet.nii.gz" -t `ls ${t1dir}/sub-${id}_ses-${mrisess}_*from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5`
+antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-RVCTemplate_pet.nii.gz" -t "${t1root}_from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5"
 
 # Get label statistics for multiple atlases using QuANTs.
 #for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do

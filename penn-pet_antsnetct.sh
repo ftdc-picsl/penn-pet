@@ -4,7 +4,10 @@
 # Note that subject and session labels cannot contain BIDS-incompatible 
 # characters like underscores or periods.
 
-export SINGULARITYENV_ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
+export APPTAINERENV_PYTHONUNBUFFERED=1
+export APPTAINERENV_ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
+export APPTAINERENV_TMPDIR="/tmp"
+#export APPTAINERENV_TEMPLATEFLOW_HOME=${templateflow_home}
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export MKL_NUM_THREADS=1
 export OMP_NUM_THREADS=1
@@ -19,10 +22,6 @@ module load afni_openmp/20.1
 module load PETPVC/1.2.10
 module load fsl/6.0.3
 module load c3d/20191022
-
-# JSP: If we can find an alternative to copying the template and associated labels and warps from the ANTsCT container,
-# we can get rid of the singularity call.
-#module load singularity/3.8.3
 
 # Command-line arguments.
 petName=$1 # Absolute path of BIDS-format, attentuation-corrected dynamic PET image
@@ -191,8 +190,8 @@ antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${tem
 
 # Get label statistics for multiple atlases using QuANTs.
 #for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do
-#
-#    outFile=${metricFile/.nii.gz/_quants.csv}
+
+ #   outFile=${metricFile/.nii.gz/_quants.csv}
 #    python ${scriptdir}/pet_quants.py --template=$template --atlas_dir=${NetworkDir}/atlases --atlas_images=${adir} --output=${outFile} -s ${id} -S ${petsess} ${metricFile} ${t1dir}
 
 #done

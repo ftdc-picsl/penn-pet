@@ -176,7 +176,7 @@ if [[ ${makeSUVR} -eq 1 ]]; then
 fi
 
 # Partial-volume correction using iterative Yang.
-tmpflist=(`ls "${t1root}_seg-antsnetct_label-*_probseg.nii.gz" | grep -v CSF`)
+tmpflist=(`ls ${t1root}_seg-antsnetct_label-*_probseg.nii.gz | grep -v CSF`)
 fslmerge -t "${outdir}/sub-${id}_ses-${mrisess}_IY_mask.nii.gz" ${tmpflist[@]}
 pvc_iy "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${outdir}/sub-${id}_ses-${mrisess}_IY_mask.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" -x ${psfwhm} -y ${psfwhm} -z ${psfwhm}
 3dcalc -a "${bmaskName}" -b "${pfx}_desc-IY${mrisess}_pet.nii.gz" -expr 'a*b' -overwrite -prefix "${pfx}_desc-IY${mrisess}_pet.nii.gz"

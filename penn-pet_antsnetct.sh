@@ -52,7 +52,7 @@ wd=${petdir/sub-${id}\/ses-${petsess}} # Subjects directory
 scriptdir=`dirname $0` # Location of this script
 
 # JSP: note that output directory is specified here!
-outdir=${3:-"/project/wolk_4/SCAN/bids/derivatives/pennpet/sub-${id}/ses-${petsess}"}
+outdir=${3:-"/project/ftdc_pipeline/data/pennpet/sub-${id}/ses-${petsess}"}
 echo "Output directory: ${outdir}"
 if [[ ! -d ${outdir} ]]; then mkdir -p ${outdir}; fi
 

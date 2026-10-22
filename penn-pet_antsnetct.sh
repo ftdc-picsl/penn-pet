@@ -192,8 +192,6 @@ pvc_iy "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${outdir}/sub-${id}_ses-${mrises
 pvc_vc "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -x ${psfwhm} -y ${psfwhm} -z ${psfwhm}
 3dcalc -a "${bmaskName}" -b "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -expr 'a*b' -overwrite -prefix "${pfx}_desc-RVC${mrisess}_pet.nii.gz"
 
-# JSP: insert code for SFS-RR partial-volume correction about here.
-
 # Warp SUVR maps to template space.
 antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-suvr${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-suvrTemplate_pet.nii.gz" -t "${t1root}_from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5"
 
@@ -202,12 +200,12 @@ antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-IY${mrisess}_pet.nii.gz" -r ${temp
 antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${templateName} -o "${pfx}_desc-RVCTemplate_pet.nii.gz" -t "${t1root}_from-T1w_to-ADNINormalAgingANTs_mode-image_xfm.h5"
 
 # Get label statistics for multiple atlases using QuANTs.
-#for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do
+for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do
 
- #   outFile=${metricFile/.nii.gz/_quants.csv}
-#    python ${scriptdir}/pet_quants.py --template=$template --atlas_dir=${NetworkDir}/atlases --atlas_images=${adir} --output=${outFile} -s ${id} -S ${petsess} ${metricFile} ${t1dir}
-
-#done
+    outFile=${metricFile/.nii.gz/_labelstats.tsv}
+    python ${scriptdir}/pet_label_stats.py --output=${outFile} --subject=${s} --session=${petsess} ${metricFile} ${t1Name}
+    
+done
 
 # JSP: need to at least make the template directory writeable; otherwise, if the script crashes out, it can't be deleted.
 chgrp -R ftdclpc ${outdir}

@@ -90,7 +90,14 @@ echo "T1 directory is: ${t1dir}"
 # T1 base filename: subj, sess, and acq.
 t1bn=`basename ${t1Name}`
 t1fp=(${t1bn//_/\ })
-t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}_${t1fp[2]}"
+#if [[ ${t1fp[2]} == *"desc"* ]]; then
+#	t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}"
+#elif [[ ${t1bn} == *"_run-"* ]]; then
+#        t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}_${t1fp[2]}_${t1fp[3]}"
+#else
+#	t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}_${t1fp[2]}"
+#fi
+t1root="${t1Name/_desc-biascorr_T1w.nii.gz}"
 bmaskName="${t1root}_desc-brain_mask.nii.gz"
 segName="${t1root}_seg-antsnetct_dseg.nii.gz"
 

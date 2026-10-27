@@ -72,8 +72,8 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description="Summarize ROI values using a user-supplied label image and definitions file.")
     parser.add_argument('-s', '--subject', default=None, action='store', required=True, help='SubjectID')
-    parser.add_argument('-S', '--session', default=None, action='store', required=True, help='SessionID')
-    parser.add_argument('-p', '--parcellation_list', default=None, action = 'store', required = False, help = 'Optional list of segmentation/parcellation names, if not indicated by the BIDS seg entity.')
+    parser.add_argument('-t', '--session', default=None, action='store', required=True, help='SessionID')
+    parser.add_argument('-p', '--parcellation_list', nargs="+", default=None, action = 'store', required = False, help = 'Optional list of segmentation/parcellation names, if not indicated by the BIDS seg entity.')
     parser.add_argument('-i','--label_images', nargs="+", help='list of user-specified label files')
     parser.add_argument('-d','--label_definitions', nargs="+", help='list of user-specified label descriptions to accompany label_images')
     parser.add_argument('-o', '--outputStem', default=None,  action='store', required=True, help='output stem')

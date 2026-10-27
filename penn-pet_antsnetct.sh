@@ -48,7 +48,6 @@ petsess=`echo $bn | grep -oE 'ses-[^_]*' | cut -d '-' -f 2` # PET session label
 trc=`echo $bn | grep -oE 'trc-[^_]*' | cut -d '-' -f 2` # PET tracer name.
 t1bn=`basename ${t1Name}`
 mrisess=`echo $t1bn | grep -oE 'ses-[^_]*' | cut -d '-' -f 2` # MRI session label
-wd=${petdir/sub-${id}\/ses-${petsess}} # Subjects directory
 scriptdir=`dirname $0` # Location of this script
 
 # JSP: note that output directory is specified here!

@@ -82,21 +82,22 @@ def main():
     args = parser.parse_args()
     print(args)
     
+    outputStem = args.outputStem[0]
+    petFile = args.PETFile[0]
+    petDir = os.path.dirname(petFile[0])
+    OutputDir = os.path.dirname(args.outputStem[0])
+    
     logging.basicConfig(
         format='%(asctime)s %(name)s %(levelname)-8s %(message)s',
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')
     
-    psOut = getMyPID( 'jefphi', args.outputStem[0] )
-    threads = getMyThreads( 'jefphi', args.outputStem[0])
+    psOut = getMyPID( 'jefphi', outputStem )
+    threads = getMyThreads( 'jefphi', outputStem)
     logging.info("Started with nThreads="+str(threads))
     
-    petFile = args.PETFile[0]
-    petDir = os.path.dirname(petFile[0])
-    OutputDir = os.path.dirname(args.outputStem[0])
-    
     user = os.getenv('USER')
-    threads = getMyThreads( user, args.outputStem )
+    threads = getMyThreads( user, outputStem )
     logging.info("Starting ROI label stats calculation with nThreads="+str(threads))
     
     label_stats_output_files = list()

@@ -106,7 +106,8 @@ def main():
         label_image = args.label_images[i]
         label_image = bids_helpers.image_to_bids(src_image = args.label_images[i],
             dataset_dir = "/project/ftdc_pipeline/data/ashs_t1ext",
-            dest_rel_path = outputDir.replace("/project/ftdc_pipeline/data/pennpet",".."))
+            dest_rel_path = outputDir.replace("/project/ftdc_pipeline/data/pennpet",".."),
+            overwrite = True)
         label_desc = bids_helpers.load_label_definitions(args.label_definitions[i])
         try:
             args.parcellation_list

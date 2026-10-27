@@ -43,7 +43,7 @@ def getSegName(dseg_file):
     baseName = os.path.basename(path)
     fParts = str.split(baseName,"_")
     segName = [s for i, s in enumerate(fParts) if "seg-" in s]
-    return(segName.replace("seg-","")
+    return(segName.replace("seg-",""))
 
 
 def getMyPID( uname, outputStem ):

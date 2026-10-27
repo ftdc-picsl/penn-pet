@@ -86,7 +86,6 @@ def main():
     petFile = args.PETFile[0]
     petDir = os.path.dirname(petFile[0])
     outputDir = os.path.dirname(args.outputStem[0])
-    label_definitions = bids_helpers.load_label_definitions(args.label_definitions)
     
     logging.basicConfig(
         format='%(asctime)s %(name)s %(levelname)-8s %(message)s',
@@ -108,7 +107,7 @@ def main():
         label_image = bids_helpers.image_to_bids(src_image = args.label_images[i],
             dataset_dir = "/project/ftdc_pipeline/data/ashs_t1ext",
             dest_rel_path = outputDir.replace("/project/ftdc_pipeline/data/pennpet",".."))
-        label_desc = label_definitions[i]
+        label_desc = bids_helpers.load_label_definitions(args.label_definitions[i])
         try:
             args.parcellation_list
         except NameError:

@@ -11,6 +11,7 @@ import glob
 from antsnetct import *
 import pandas as pd
 import argparse
+import logging
 
 os.environ['ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS'] = str(1)
 os.environ['MKL_NUM_THREADS'] = str(1)
@@ -77,7 +78,7 @@ def main():
     parser.add_argument('-i','--label_images', nargs="+", help='list of user-specified label files')
     parser.add_argument('-d','--label_definitions', nargs="+", help='list of user-specified label descriptions to accompany label_images')
     parser.add_argument('-o', '--outputStem', nargs=1, default=None,  action='store', required=True, help='output stem')
-    parser.add_argument('PETFile', nargs=1, help='PETFilePath')
+    parser.add_argument('-i', '--PETFile', nargs=1, help='PET file path')
     args = parser.parse_args()
     print(args)
     
@@ -86,13 +87,13 @@ def main():
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')
     
-    psOut = getMyPID( 'jefphi', args.outputStem )
-    threads = getMyThreads( 'jefphi', args.outputStem )
+    psOut = getMyPID( 'jefphi', args.outputStem[0] )
+    threads = getMyThreads( 'jefphi', args.outputStem[0])
     logging.info("Started with nThreads="+str(threads))
     
     petFile = args.PETFile[0]
-    petDir = os.path.dirname(petFile)
-    OutputDir = os.path.dirname(args.outputStem)
+    petDir = os.path.dirname(petFile[0])
+    OutputDir = os.path.dirname(args.outputStem[0])
     
     user = os.getenv('USER')
     threads = getMyThreads( user, args.outputStem )

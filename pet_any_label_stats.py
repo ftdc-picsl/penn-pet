@@ -85,7 +85,8 @@ def main():
     outputStem = args.outputStem[0]
     petFile = args.PETFile[0]
     petDir = os.path.dirname(petFile[0])
-    OutputDir = os.path.dirname(args.outputStem[0])
+    outputDir = os.path.dirname(args.outputStem[0])
+    label_definitions = bids_helpers.load_label_definitions(args.label_definitions)
     
     logging.basicConfig(
         format='%(asctime)s %(name)s %(levelname)-8s %(message)s',
@@ -104,7 +105,10 @@ def main():
     
     for i in range(len(args.label_images)):
         label_image = args.label_images[i]
-        label_desc = args.label_definitions[i]
+        label_image = bids_helpers.image_to_bids(src_image = args.label_images[i],
+            dataset_dir = "/project/ftdc_pipeline/data/ashs_t1ext",
+            dest_rel_path = outputDir.replace("/project/ftdc_pipeline/data/pennpet",".."))
+        label_desc = label_definitions[i]
         try:
             args.parcellation_list
         except NameError:
@@ -114,8 +118,8 @@ def main():
         
         # Get SUVR values for each label image.
         label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
-        label_definitions = label_desc, work_dir = OutputDir, scalar_image = petFile)
-#        label_suvr_file = "{}/{}_desc-suvr_labelstats.tsv".format(OutputDir,os.path.basename(label_image).replace(dropString,''))
+        label_definitions = label_desc, work_dir = outputDir, scalar_image = petFile)
+#        label_suvr_file = "{}/{}_desc-suvr_labelstats.tsv".format(outputDir,os.path.basename(label_image).replace(dropString,''))
         label_suvr_file = outputStem.replace("_desc-", segName + "_desc-") + "_labelstats.tsv"
         bids_helpers.write_tabular_data(label_suvr_stats, label_suvr_file)
         label_stats_output_files.append(label_suvr_file)

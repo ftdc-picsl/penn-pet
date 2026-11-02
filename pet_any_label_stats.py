@@ -118,7 +118,8 @@ def main():
         
         # Get SUVR values for each label image.
         label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
-        label_definitions = label_desc, work_dir = outputDir, scalar_image = petFile)
+            label_definitions = label_desc, work_dir = outputDir, scalar_image = petFile)
+        label_suvr_stats = label_suvr_stats.query("~(mean.isna() and std.isna() and median.isna())")
 #        label_suvr_file = "{}/{}_desc-suvr_labelstats.tsv".format(outputDir,os.path.basename(label_image).replace(dropString,''))
         label_suvr_file = outputStem.replace("_desc-", segName + "_desc-") + "_labelstats.tsv"
         bids_helpers.write_tabular_data(label_suvr_stats, label_suvr_file)

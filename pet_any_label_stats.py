@@ -92,8 +92,8 @@ def main():
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')
     
-    psOut = getMyPID( 'jefphi', outputStem )
-    logging.info("psOut: " + psOut)
+    #psOut = getMyPID( 'jefphi', outputStem )
+    #logging.info("psOut: " + psOut)
     #threads = getMyThreads( 'jefphi', outputStem)
     #logging.info("Started with nThreads="+str(threads))
     

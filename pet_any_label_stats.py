@@ -93,12 +93,14 @@ def main():
         datefmt='%Y-%m-%d %H:%M:%S')
     
     psOut = getMyPID( 'jefphi', outputStem )
-    threads = getMyThreads( 'jefphi', outputStem)
-    logging.info("Started with nThreads="+str(threads))
+    logging.info("psOut: " + psOut)
+    #threads = getMyThreads( 'jefphi', outputStem)
+    #logging.info("Started with nThreads="+str(threads))
     
     user = os.getenv('USER')
-    threads = getMyThreads( user, outputStem )
-    logging.info("Starting ROI label stats calculation with nThreads="+str(threads))
+    logging.info("user: " + user)
+    #threads = getMyThreads( user, outputStem)
+    #logging.info("Starting ROI label stats calculation with nThreads="+str(threads))
     
     label_stats_output_files = list()
     

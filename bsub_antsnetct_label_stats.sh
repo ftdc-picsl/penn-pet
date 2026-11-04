@@ -9,7 +9,7 @@ scriptdir=`dirname $0`
 
 cat ${infile} | while IFS="," read suvr; do
 	wd=`dirname ${suvr}`
-	t1=`ls ${wd}/*desc-biascorr_T1w.nii.gz 2>/dev/null | grep -v space`
+	t1=`readlink ${wd}/*desc-biascorr_T1w.nii.gz 2>/dev/null | grep -v space`
     bn=`basename ${suvr}`
     fp=(${bn//_/\ })
     subj=${fp[0]/sub-}

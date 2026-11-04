@@ -13,8 +13,8 @@
 
 import os 
 import glob
-from antsnetct import *
-from ants import *
+from antsnetct import bids_helpers,ants_helpers
+from ants import copy_image_info,image_read,image_write
 import pandas as pd
 import argparse
 import logging
@@ -110,15 +110,10 @@ def main():
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')
     
-    #psOut = getMyPID( 'jefphi', outputStem )
-    #logging.info("psOut: " + psOut)
-    #threads = getMyThreads( 'jefphi', outputStem)
-    #logging.info("Started with nThreads="+str(threads))
-    
-    user = os.getenv('USER')
-    logging.info("user: " + user)
-    #threads = getMyThreads( user, outputStem)
-    #logging.info("Starting ROI label stats calculation with nThreads="+str(threads))
+    psOut = getMyPID( 'jefphi', petStem )
+    logging.info("psOut: " + psOut)
+    threads = getMyThreads( 'jefphi', petStem)
+    logging.info("Started with nThreads="+str(threads))
     
     label_parc_files = [f for f in glob.glob(mriStem + "_seg-*dseg.nii.gz") if "antsnetct_dseg.nii.gz" not in f]
     label_stats_output_files = list()

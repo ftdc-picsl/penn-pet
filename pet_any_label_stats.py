@@ -18,7 +18,7 @@
 
 import os 
 import glob
-from antsnetct import *
+from antsnetct import ants_helpers,bids_helpers
 import pandas as pd
 import argparse
 import logging

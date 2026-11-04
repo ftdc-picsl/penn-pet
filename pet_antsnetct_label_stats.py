@@ -102,6 +102,7 @@ def main():
     label_stats_output_files = list()
  
     for label_image in label_parc_files:
+        print("Processing label image: " + label_image)
         lab_def = label_image.replace("nii.gz","tsv")
         label_desc = bids_helpers.load_label_definitions(lab_def)
         segName = getSegName(label_image)
@@ -119,6 +120,7 @@ def main():
                 label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
     
         label_suvr_file = petStem.replace("_desc-", "_seg-" + segName + "_desc-") + "_labelstats.tsv"
+        print("Writing label stats to file: " + label_suvr_file)
         bids_helpers.write_tabular_data(label_suvr_stats, label_suvr_file)
         label_stats_output_files.append(label_suvr_file)
     

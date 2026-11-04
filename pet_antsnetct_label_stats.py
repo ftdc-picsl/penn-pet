@@ -24,7 +24,7 @@ def parsePETPath( path ):
     dirName = os.path.dirname(path)
     baseName = os.path.basename(path)
     fParts = str.split(baseName,"_")
-    descInd = [i for i, s in enumerate(fParts) if "desc" in s]
+    descInd = [i for i, s in enumerate(fParts) if "desc" in s][0]
     fStem = "{}/{}".format(dirName, "_".join(fParts[:(descInd+1)]))
     
     id = fParts[0]

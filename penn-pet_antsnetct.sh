@@ -25,7 +25,7 @@ module load c3d/20191022
 
 # Command-line arguments.
 petName=$1 # Absolute path of BIDS-format, attentuation-corrected dynamic PET image
-t1Name=$2 # Absolute path of N4-corrected, skull-on T1 image from ANTsCT output directory
+t1Name=$2 # Absolute path of bias-corrected, skull-on T1 image from antsnetct output directory
 
 # Record job ID.
 # JSP: useful for job monitoring and debugging failed jobs.
@@ -202,7 +202,7 @@ antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${tem
 for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do
 
     outFile=${metricFile/.nii.gz/_labelstats.tsv}
-    python ${scriptdir}/pet_label_stats.py --output=${outFile} --subject=${s} --session=${petsess} ${metricFile} ${t1Name}
+    python ${scriptdir}/pet_antsnetct_label_stats.py -i ${metricFile} -a ${t1Name}
     
 done
 

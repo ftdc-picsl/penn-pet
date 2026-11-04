@@ -9,6 +9,7 @@
 import os 
 import glob
 from antsnetct import *
+from ants import copy_image_info
 import pandas as pd
 import argparse
 import logging
@@ -106,27 +107,22 @@ def main():
         segName = getSegName(label_image)
         
         # Get SUVR values for each label image.
-        label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
-            label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
-        #label_suvr_stats = label_suvr_stats.query("~(mean.isna() and std.isna() and median.isna())")
-        label_suvr_file = petStem.replace("_desc-", segName + "_desc-") + "_labelstats.tsv"
+        try:
+            label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
+                label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
+        except ValueError:
+            petImg = image_read(petFile,3)
+            antsImg = image_read(antsFile,3)
+            petImg = copy_image_info(antsImg, petImg)
+            image_write(petImg, petFile)
+            label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
+                label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
+    
+        label_suvr_file = petStem.replace("_desc-", "_seg-" + segName + "_desc-") + "_labelstats.tsv"
         bids_helpers.write_tabular_data(label_suvr_stats, label_suvr_file)
         label_stats_output_files.append(label_suvr_file)
-        logging.info("Output written to " + label_suvr_file)
-        return(label_stats_output_files)
+    
+    return(label_stats_output_files)
 
 if __name__ == "__main__":
     main()
-
-for label_image in label_parc_files:
-    lab_def = label_image.replace("nii.gz","tsv")
-    label_desc = bids_helpers.load_label_definitions(lab_def)
-    segName = getSegName(label_image)
-    
-    # Get SUVR values for each label image.
-    label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
-        label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
-    #label_suvr_stats = label_suvr_stats.query("~(mean.isna() and std.isna() and median.isna())")
-    label_suvr_file = petStem.replace("_desc-", segName + "_desc-") + "_labelstats.tsv"
-    bids_helpers.write_tabular_data(label_suvr_stats, label_suvr_file)
-    label_stats_output_files.append(label_suvr_file)

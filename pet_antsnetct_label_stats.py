@@ -110,10 +110,10 @@ def main():
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')
     
-    psOut = getMyPID( 'jefphi', petStem )
-    logging.info("psOut: " + psOut)
-    threads = getMyThreads( 'jefphi', petStem)
-    logging.info("Started with nThreads="+str(threads))
+    #psOut = getMyPID( 'jefphi', petStem )
+    #logging.info("psOut: " + psOut)
+    #threads = getMyThreads( 'jefphi', petStem)
+    #logging.info("Started with nThreads="+str(threads))
     
     label_parc_files = [f for f in glob.glob(mriStem + "_seg-*dseg.nii.gz") if "antsnetct_dseg.nii.gz" not in f]
     label_stats_output_files = list()

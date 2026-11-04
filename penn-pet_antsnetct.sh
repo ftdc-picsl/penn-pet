@@ -202,7 +202,7 @@ antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${tem
 for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do
 
     outFile=${metricFile/.nii.gz/_labelstats.tsv}
-    python ${scriptdir}/pet_antsnetct_label_stats.py -i ${metricFile} -a ${t1Name}
+    conda run -n pennpet python ${scriptdir}/pet_antsnetct_label_stats.py -i ${metricFile} -a ${t1Name}
     
 done
 

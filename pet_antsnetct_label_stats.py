@@ -19,17 +19,34 @@ os.environ['MKL_NUM_THREADS'] = str(1)
 os.environ['OMP_NUM_THREADS'] = str(1)
 os.environ['NUMEXPR_NUM_THREADS'] = str(1)
 
-def parsePath( path ):
+def parsePETPath( path ):
+    
+    dirName = os.path.dirname(path)
+    baseName = os.path.basename(path)
+    fParts = str.split(baseName,"_")
+    descInd = [i for i, s in enumerate(fParts) if "desc" in s]
+    fStem = "{}/{}".format(dirName, "_".join(fParts[:(descInd+1)]))
+    
+    id = fParts[0]
+    ses = fParts[1]
+    
+    if "sub-" in id:
+        id = id.split('-')[1]
+    if "ses-" in ses:
+        ses = ses.split('-')[1]
+    
+    return((id,ses,fStem))
+
+def parseT1Path( path ):
     
     dirName = os.path.dirname(path)
     baseName = os.path.basename(path)
     fParts = str.split(baseName,"_")
     sesInd = [i for i, s in enumerate(fParts) if "ses" in s]
-    trcInd = [i for i, s in enumerate(fParts) if "trc" in s]
     acqInd = [i for i, s in enumerate(fParts) if "acq" in s]
     runInd = [i for i, s in enumerate(fParts) if "run" in s]
     #descInd = [i for i, s in enumerate(fParts) if "desc" in s]
-    lastInd = max(acqInd,runInd,trcInd,sesInd)[0]
+    lastInd = max(acqInd,runInd,sesInd)[0]
     fStem = "{}/{}".format(dirName, "_".join(fParts[:(lastInd+1)]))
     
     id = fParts[0]
@@ -80,8 +97,8 @@ def main():
     petDir = os.path.dirname(petFile)
     antsFile = args.antsnetctT1[0]
     antsDir = os.path.dirname(antsFile)
-    (subj, petsess, petStem) = parsePath(petFile)
-    (subj, mrisess, mriStem) = parsePath(antsFile)
+    (subj, petsess, petStem) = parsePETPath(petFile)
+    (subj, mrisess, mriStem) = parseT1Path(antsFile)
     
     logging.basicConfig(
         format='%(asctime)s %(name)s %(levelname)-8s %(message)s',

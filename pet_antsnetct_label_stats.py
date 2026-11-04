@@ -1,9 +1,14 @@
 '''
+
     Script for extracting ROI label statistics from PET SUVR image using label images
     output by antsnetct. This script supersedes the older pet_quants.py. Dependencies:
         a) antsnetct output (rather than the older ANTsCT pipeline)
         b) the antsnetct.ants_helpers.numpy_label_statistics() function
         c) an SUVR map in the space of the T1 used for antsnetct
+    Input includes:
+        -i or --PETFile: full path to PET SUVR image
+        -a or --antsnetctT1: full path to antsnetct bias-corrected image
+        
 '''
 
 import os 

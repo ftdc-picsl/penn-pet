@@ -1,9 +1,19 @@
 '''
-    Script for extracting ROI label statistics for multiple atlases from PET SUVR image.
+
+    Script for extracting ROI label statistics for an arbirary atlas parcellation from PET SUVR image.
     This script supersedes the older pet_quants.py. The new script principally depends on:
         a) antsnetct output (rather than the older ANTsCT pipeline)
         b) numpy-based ROI stats functions available through antsnetct: https://github.com/ftdc-picsl/antsnetct/blob/c70f75ecb4844f875d2f4031334d59b44665a313/antsnetct/ants_helpers.py#L2532-L2640
 
+    Inputs include:
+        -s / --subject: subject label
+        -t / --session: PET session label
+        -p / --parcellation_list: segmentation name(s) to use in the BIDS output name (variable number of arguments)
+        -l / --label_images: full path(s) to label file(s) to compute statistics for
+        -d / --label_definitions: full path(s) to label file descriptions
+        -o / --outputStem: stem for output files. Typically the PET name without _pet.nii.gz
+        -i / --PETFile: the full path to the PET (SUVR) image you want to sample
+ 
 '''
 
 import os 

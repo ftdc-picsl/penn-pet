@@ -1,8 +1,12 @@
 #!/bin/bash
-# Just run QuANTs on already pre-processed PET dadta.
-# infile: a two-column csv file, no header row, with the full paths to the
-# unprocessed PET file and the T1 BrainSegmentation0N4 image from the ANTsCT
-# output directory.
+# Stand-alone script for running label statistics (via numpy_label_statistics function)
+# on PET SUVR image.
+# infile: a single-column csv file, giving the full path to the SUVR image. The script
+# will look inside the SUVR image directory to find the symlinked antsnetct biascorr image
+# and associated antsnetct files.
+# Note that this depends on the pennpet conda environment; the penn-pet Github repo
+# (https://github.com/ftdc-picsl/penn-pet/tree/main) contains a .yml file with the enviro
+# specifications. Note that it uses conda-forge.
 
 infile=${1}
 scriptdir=`dirname $0`

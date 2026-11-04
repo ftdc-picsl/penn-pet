@@ -1,10 +1,16 @@
 #!/bin/bash
-# Just run QuANTs on already pre-processed PET dadta.
-# infile: a two-column csv file, no header row, with the full paths to the
-# unprocessed PET file and the T1 BrainSegmentation0N4 image from the ANTsCT
-# output directory.
-
-conda activate pennpet
+# Stand-alone script for gathering label statistics (via numpy_label_statistics function)
+# for the ASHS T1 extended atlas from a PET SUVR image.
+# infile: a 6-column csv file, where the columns represent:
+#   1. Subject label
+#   2. PET session label
+#   3. Full path to NIfTI with left-hemisphere ASHS masks
+#   4. Full path to NIfTI with right-hemisphere ASHS masks
+#   5. String for the BIDS seg-name entity naming the left-hemisphere ASHS T1 extended atlas.
+#   6. String for the BIDS seg-name entity naming the right-hemisphere ASHS T1 extended atlas.
+# Note that this depends on the pennpet conda environment; the penn-pet Github repo
+# (https://github.com/ftdc-picsl/penn-pet/tree/main) contains a .yml file with the enviro
+# specifications. Note that it uses conda-forge.
 
 infile=${1}
 scriptdir=`dirname $0`

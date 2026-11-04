@@ -52,7 +52,7 @@ def parseT1Path( path ):
     runInd = [i for i, s in enumerate(fParts) if "run" in s]
     recInd = [i for i, s in enumerate(fParts) if "rec" in s]
     #descInd = [i for i, s in enumerate(fParts) if "desc" in s]
-    lastInd = max(acqInd,runInd,recInd,sesInd)[0]
+    lastInd = max(acqInd,runInd,sesInd)[0]
     fStem = "{}/{}".format(dirName, "_".join(fParts[:(lastInd+1)]))
     
     id = fParts[0]
@@ -147,51 +147,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-petFile = args.PETFile[0]
-petDir = os.path.dirname(petFile)
-antsFile = args.antsnetctT1[0]
-antsDir = os.path.dirname(antsFile)
-(subj, petsess, petStem) = parsePETPath(petFile)
-(subj, mrisess, mriStem) = parseT1Path(antsFile)
-
-logging.basicConfig(
-    format='%(asctime)s %(name)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
-
-#psOut = getMyPID( 'jefphi', petStem )
-#logging.info("psOut: " + psOut)
-#threads = getMyThreads( 'jefphi', petStem)
-#logging.info("Started with nThreads="+str(threads))
-
-label_parc_files = [f for f in glob.glob(mriStem + "_seg-*dseg.nii.gz") if "antsnetct_dseg.nii.gz" not in f]
-label_stats_output_files = list()
-
-for label_image in label_parc_files:
-    print("Processing label image: " + label_image)
-    lab_def = label_image.replace("nii.gz","tsv")
-    label_desc = bids_helpers.load_label_definitions(lab_def)
-    segName = getSegName(label_image)
-    
-    # Get SUVR values for each label image.
-    try:
-        label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
-            label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
-    except ValueError:
-        petImg = image_read(petFile,3)
-        antsImg = image_read(antsFile,3)
-        petImg = copy_image_info(antsImg, petImg)
-        image_write(petImg, petFile)
-        label_suvr_stats = ants_helpers.numpy_label_statistics(label_image = label_image,
-            label_definitions = label_desc, work_dir = petDir, scalar_image = petFile)
-
-    label_suvr_file = petStem.replace("_desc-", "_seg-" + segName + "_desc-") + "_labelstats.tsv"
-    print("Writing label stats to file: " + label_suvr_file)
-    bids_helpers.write_tabular_data(label_suvr_stats, label_suvr_file)
-    label_stats_output_files.append(label_suvr_file)
-
-return(label_stats_output_files)
-
-if __name__ == "__main__":
-main()

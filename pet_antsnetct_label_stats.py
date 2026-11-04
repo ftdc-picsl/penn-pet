@@ -9,7 +9,7 @@
 import os 
 import glob
 from antsnetct import *
-from ants import copy_image_info
+from ants import *
 import pandas as pd
 import argparse
 import logging

@@ -52,7 +52,7 @@ def parseT1Path( path ):
     runInd = [i for i, s in enumerate(fParts) if "run" in s]
     recInd = [i for i, s in enumerate(fParts) if "rec" in s]
     #descInd = [i for i, s in enumerate(fParts) if "desc" in s]
-    lastInd = max(acqInd,runInd,sesInd)[0]
+    lastInd = max(acqInd,runInd,sesInd,recInd)[0]
     fStem = "{}/{}".format(dirName, "_".join(fParts[:(lastInd+1)]))
     
     id = fParts[0]

@@ -12,7 +12,9 @@ export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 export MKL_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
-export PYTHONPATH=/project/ftdc_misc/jtduda/quants/QuANTs/python/quants:/project/ftdc_volumetric/fw_bids/scripts/Flywheel_python_sdk
+
+# Path to shared Python environment (for getting label stats).
+PENNPET_ENV=/project/ftdc_pipeline/conda_envs/pennpet
 
 # Load required software on PMACS LPC.
 module unload python/3.12
@@ -37,8 +39,6 @@ echo "Inputs: ${petName},${t1Name}"
 template="/project/ftdc_pipeline/templateflow-d259ce39a/tpl-ADNINormalAgingANTs/template_description.json"
 templateDir=`dirname ${template}`
 templateName=${templateDir}/tpl-ADNINormalAgingANTs_res-01_T1w.nii.gz
-adir="/project/ftdc_misc/jtduda/quants/atlases/"
-NetworkDir=/project/ftdc_misc/jtduda/quants/QuANTs
 
 # Parse command-line arguments to get working directory, subject ID, tracer, and PET/MRI session labels.
 petdir=`dirname ${petName}` # PET session input directory
@@ -75,32 +75,25 @@ fi
 
 echo "Reference region is ${refRegion}."
 
-# JSP: adding any new partial-volume correction methods (including Shidahara et al.'s SFS-RR algorithm) will require
-# some substantial code additions that Sandy and I can help with.
+# Run partial-volume correctio.
 pvcMethod=("RVC" "IY") # PVC methods.
 
 # Define session-specific filename variables.
 pfx="${outdir}/sub-${id}_ses-${petsess}_trc-${trc}"
 t1dir=`dirname ${t1Name}`
 echo "T1 directory is: ${t1dir}"
+
 # Since antsnetct output directories can have outputs for multiple T1 images,
 # we have to make sure we derive the bmaskName and segName from t1Name,
 # rather than just ls-ing using wildcards. Use the first 3 entities of the
 # T1 base filename: subj, sess, and acq.
 t1bn=`basename ${t1Name}`
 t1fp=(${t1bn//_/\ })
-#if [[ ${t1fp[2]} == *"desc"* ]]; then
-#	t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}"
-#elif [[ ${t1bn} == *"_run-"* ]]; then
-#        t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}_${t1fp[2]}_${t1fp[3]}"
-#else
-#	t1root="${t1dir}/${t1fp[0]}_${t1fp[1]}_${t1fp[2]}"
-#fi
 t1root="${t1Name/_desc-biascorr_T1w.nii.gz}"
 bmaskName="${t1root}_desc-brain_mask.nii.gz"
 segName="${t1root}_seg-antsnetct_dseg.nii.gz"
 
- # Check that ANTsCT output directory has subject-template transforms (affine & warp) and posteriors.
+# Check that ANTsCT output directory has subject-template transforms (affine & warp) and posteriors.
 # If not, quit and tell us about it.
 flist=(`ls ${t1root}_seg-antsnetct_label-*_probseg.nii.gz ${t1root}_from*xfm.h5`)
 if [[ ${#flist[@]} -lt 7 ]]; then
@@ -202,7 +195,7 @@ antsApplyTransforms -d 3 -e 0 -i "${pfx}_desc-RVC${mrisess}_pet.nii.gz" -r ${tem
 for metricFile in "${pfx}_desc-suvr${mrisess}_pet.nii.gz" "${pfx}_desc-IY${mrisess}_pet.nii.gz" "${pfx}_desc-RVC${mrisess}_pet.nii.gz"; do
 
     outFile=${metricFile/.nii.gz/_labelstats.tsv}
-    conda run -n pennpet python ${scriptdir}/pet_antsnetct_label_stats.py -i ${metricFile} -a ${t1Name}
+    conda run --prefix ${PENNPET_ENV} python ${scriptdir}/pet_antsnetct_label_stats.py -i ${metricFile} -a ${t1Name}
     
 done
 
